@@ -43,7 +43,7 @@ public class MainLogic {
         final EReader reader = new EReader(client, readerSignal);
         reader.start();
         textInterface = _textInterface;
-        dataAnalysis = new DataAnalysis();
+        dataAnalysis = new DataAnalysis(_textInterface);
     }
 
 
@@ -67,7 +67,9 @@ public class MainLogic {
         client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract(), ordersAndContracts.giveOrder());
     }
     public void getData (){
-        textInterface.setTextArea1(dataAnalysis.getHistoricalData());
+        
+        dataAnalysis.giveTickerPrice();
+        
     }
 }
 
