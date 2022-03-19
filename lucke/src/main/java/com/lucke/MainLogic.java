@@ -68,7 +68,10 @@ public class MainLogic {
     }
     public void getData (){
         
-        dataAnalysis.giveTickerPrice();
+        try {
+            dataAnalysis.giveTickerPrice();
+        }
+        catch (IOException o){}
         
     }
 }
