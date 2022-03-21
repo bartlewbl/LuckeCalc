@@ -28,11 +28,11 @@ public class OrdersContracts {
         order1.totalQuantity(1);
         return order1;
     }
-    public Contract giveContract (){
+    public Contract giveContract (String ticker){
         Contract contract1 = new Contract ();
-        contract1.symbol ("EUR");  
-        contract1.secType ("CASH");
-        contract1.exchange("IDEALPRO");
+        contract1.symbol (ticker);  
+        contract1.secType ("STK");
+        contract1.exchange("NASDAQ");
         contract1.currency ("USD");  
         
         return contract1;

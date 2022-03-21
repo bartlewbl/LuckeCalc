@@ -64,10 +64,10 @@ public class MainLogic {
     }
 
     public void placeOrderFct(){
-        client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract(), ordersAndContracts.giveOrder());
+        client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract("AAPL"), ordersAndContracts.giveOrder());
     }
     public void getData (){
-        
+        dataAnalysis.test();
         try {
             dataAnalysis.giveTickerPrice();
         }

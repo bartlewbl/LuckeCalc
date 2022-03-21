@@ -16,6 +16,8 @@ import yahoofinance.*;
 
 public class DataAnalysis {
     String [] tickerArray;
+    String [] tickerWithConditions;
+    String currentTicker;
     TextInterface textInterface;
     Path path1 = Paths.get("C:","Temp","Nasdaq100Tickers.txt");
     Path path2 = Paths.get("/Users/bartlomiejlewandowski/Desktop/Nasdaq100Tickers.txt");
@@ -24,36 +26,26 @@ public class DataAnalysis {
 
     public DataAnalysis (TextInterface _textInterface){
         tickerArray = new String [100];
+        tickerWithConditions = new  String [100];
         textInterface = _textInterface;
     }
 
     public void giveTickerPrice () throws IOException{
         
         if (file.exists() == true){
-            Stock stock1;
-            Stock stock2;
-
-            Calendar from = Calendar.getInstance();
-            Calendar to = Calendar.getInstance();
-            Calendar from1 = Calendar.getInstance();
-            Calendar to1 = Calendar.getInstance();
-            from1.add(Calendar.DAY_OF_MONTH, -1);
+            String strArray [];
             System.out.println("start");
             try (BufferedReader br = new BufferedReader(new FileReader(file))){
                 String tickerZeile = br.readLine();
                 tickerZeile = br.readLine().trim();   //// "List:"" as first thing in the file because when first line is taken then u get =<(Ticker) so it gives out an exeption on the first line
-                for (int i = 0; i < 5; i++){
-                    try {
-                        stock1 = YahooFinance.get(tickerZeile, from, to, Interval.DAILY);
-                        //System.out.println(stock1.getHistory()); 
-                        textInterface.setTextArea1(stock1.getHistory().toString());
-                        tickerArray = stock1.getHistory().toString().split(" ");
-                        textInterface.setTextArea1(tickerArray[0]);
-                        textInterface.setTextArea1(tickerArray[1]);
-                        //stock2 = YahooFinance.get(tickerZeile, from1, to1, Interval.DAILY);
-                        //textInterface.setTextArea1(stock2.getHistory().toString()); 
+                for (int i = 0; i < 20; i++){
+                    strArray = getPriceData(tickerZeile);
+                    textInterface.setTextArea1(tickerZeile + "  " + strArray [1] + "  " + strArray [2]);
+                    if (checkIfLucke(strArray) == true){
+
+                        textInterface.setTextArea1(tickerZeile);
+
                     }
-                    catch (IOException o){}
                     tickerZeile = br.readLine().trim();
                 }
             }
@@ -65,13 +57,52 @@ public class DataAnalysis {
         else if (file.exists() == false){
             System.out.println("Cannot find file!!!");
         }
-        
+    }
+
+    public boolean checkIfLucke (String arrayTicker[]){
+        double low = Double.parseDouble(arrayTicker[1]);
+        double high = Double.parseDouble(arrayTicker[2]);
+        double average = (Double.parseDouble(arrayTicker[1]) + Double.parseDouble(arrayTicker[2])) / 2;
+        if (low > high){
+
+            return true;
+        }
+        return false;
     }
 
 
+    public String getTicker (){
+        return currentTicker;
+    }
 
-    public void getPriceData (String ticker){
+    public void test (){
+        Stock stock1;
+        Stock stock2;
 
+        Calendar from = Calendar.getInstance();
+        Calendar to = Calendar.getInstance();
+        Calendar from1 = Calendar.getInstance();
+        Calendar to1 = Calendar.getInstance();
+        System.out.println(from.get(Calendar.DAY_OF_WEEK));
+        from1.add(Calendar.DAY_OF_MONTH, -3); // from 5 years ago\
+        try {
+            stock1 = YahooFinance.get("AAPL", from, to, Interval.DAILY);
+            stock2 = YahooFinance.get("AAPL", from1, to1, Interval.DAILY);
+            
+            textInterface.setTextArea1(stock2.getHistory().toString());
+            textInterface.setTextArea1(stock1.getHistory().toString());
+        }
+        catch (IOException o){
+            System.out.println("IOException: Problem with getting PriceData!");
+        }
+        
+
+    }
+    
+
+
+    public String[] getPriceData (String ticker){
+        String priceData [] = new String [3];
         
         
         Stock stock1;
@@ -80,17 +111,47 @@ public class DataAnalysis {
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         Calendar from1 = Calendar.getInstance();
-        Calendar to1 = Calendar.getInstance();
-        from1.add(Calendar.DAY_OF_MONTH, -1); // from 5 years ago
+        if (from.get(Calendar.DAY_OF_WEEK)==7){
+            System.out.println("Saturday");
+            from1.add(Calendar.DAY_OF_MONTH, -2);
+            from.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        else if (from.get(Calendar.DAY_OF_WEEK)==1){
+            System.out.println("Sunday");
+            from1.add(Calendar.DAY_OF_MONTH, -3);
+            from.add(Calendar.DAY_OF_MONTH, -2);
+        }
+        else if (from.get(Calendar.DAY_OF_WEEK)== 2){
+            System.out.println("Monday");
+            from1.add(Calendar.DAY_OF_MONTH,-4);
+            from.add(Calendar.DAY_OF_MONTH,-3);
+        }
+        else {
+            System.out.println("Normalday");
+            from1.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        
         try {
             stock1 = YahooFinance.get(ticker, from, to, Interval.DAILY);
-            //System.out.println(stock1.getHistory()); 
-            textInterface.setTextArea1(stock1.getHistory().toString()); 
-            stock2 = YahooFinance.get(ticker, from1, to1, Interval.DAILY);
-            textInterface.setTextArea1(stock2.getHistory().toString()); 
+            stock2 = YahooFinance.get(ticker, from1, to, Interval.DAILY);
+            tickerArray = stock1.getHistory().toString().split(" ");
+            priceData [0] = tickerArray [0];
+            tickerArray = tickerArray[1].split("-");
+            priceData [2] = tickerArray [1].substring(0, tickerArray[1].length()-1);
+
+            tickerArray = stock2.getHistory().toString().split(" ");
+            tickerArray = tickerArray[1].split("-");
+            priceData [1] =  tickerArray [0];
+            
         }
-        catch (IOException o){}
-        
+        catch (IOException o){
+            System.out.println("IOException: Problem with getting PriceData!");
+            priceData [0] = ticker;
+            priceData [1] = "0.000"; 
+            priceData [2] = "0.000"; 
+            return priceData;
+        }
+        return priceData;
     }
 
   
