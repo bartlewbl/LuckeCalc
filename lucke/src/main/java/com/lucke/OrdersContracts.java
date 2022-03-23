@@ -25,7 +25,7 @@ public class OrdersContracts {
         Order order1 = new Order();
         order1.action("BUY");
         order1.orderType("MKT");
-        order1.totalQuantity(1);
+        order1.totalQuantity(-1);
         return order1;
     }
     public Contract giveContract (String ticker){

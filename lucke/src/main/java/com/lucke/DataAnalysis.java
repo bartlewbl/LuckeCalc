@@ -15,6 +15,7 @@ import java.util.Calendar;
 import yahoofinance.*;
 
 public class DataAnalysis {
+    private GuiThreadDecoupler _guiThreadDecoupl;
     String [] tickerArray;
     String [] tickerWithConditions;
     String currentTicker;
@@ -30,21 +31,24 @@ public class DataAnalysis {
         textInterface = _textInterface;
     }
 
-    public void giveTickerPrice () throws IOException{
-        
+    public String [] giveTickerPrice () throws IOException{
+        String tickersWithLucke[] = new String [50];
+        int tickernumber = 0;
         if (file.exists() == true){
             String strArray [];
             System.out.println("start");
             try (BufferedReader br = new BufferedReader(new FileReader(file))){
                 String tickerZeile = br.readLine();
                 tickerZeile = br.readLine().trim();   //// "List:"" as first thing in the file because when first line is taken then u get =<(Ticker) so it gives out an exeption on the first line
-                for (int i = 0; i < 20; i++){
+                for (int i = 0; i < 90; i++){
+                    
                     strArray = getPriceData(tickerZeile);
                     textInterface.setTextArea1(tickerZeile + "  " + strArray [1] + "  " + strArray [2]);
                     if (checkIfLucke(strArray) == true){
 
                         textInterface.setTextArea1(tickerZeile);
-
+                        tickersWithLucke[tickernumber] = tickerZeile;
+                        tickernumber++;
                     }
                     tickerZeile = br.readLine().trim();
                 }
@@ -57,6 +61,7 @@ public class DataAnalysis {
         else if (file.exists() == false){
             System.out.println("Cannot find file!!!");
         }
+        return tickersWithLucke;
     }
 
     public boolean checkIfLucke (String arrayTicker[]){
@@ -129,6 +134,7 @@ public class DataAnalysis {
         else {
             System.out.println("Normalday");
             from1.add(Calendar.DAY_OF_MONTH, -1);
+            //from.add(Calendar.DAY_OF_MONTH,-1); //Experimental
         }
         
         try {

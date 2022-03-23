@@ -34,6 +34,7 @@ public class MainLogic {
     TextInterface textInterface;
     DataAnalysis dataAnalysis;
 
+    String tickerToShort[];
     public MainLogic (TextInterface _textInterface){
         eWrapperImpl = new EWrapperImpl(_textInterface);
         readerSignal = new EJavaSignal();
@@ -63,16 +64,31 @@ public class MainLogic {
         return i; 
     }
 
-    public void placeOrderFct(){
-        client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract("AAPL"), ordersAndContracts.giveOrder());
+    public void placeOrderFct(String ticker){
+        client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract(ticker), ordersAndContracts.giveOrder());
     }
     public void getData (){
-        dataAnalysis.test();
-        try {
-            dataAnalysis.giveTickerPrice();
-        }
-        catch (IOException o){}
         
+        try {
+            tickerToShort = dataAnalysis.giveTickerPrice();
+        }
+        catch (IOException o){
+            textInterface.setTextArea1("Couldnt transfer Stringarray with tickers to short!");
+        }
+
+        for (int i = 0; i < 50;i++){
+            if (tickerToShort[i] != null){
+                try {
+                    Stock stock = YahooFinance.get(tickerToShort[i]);
+                    textInterface.setTextArea1("Shorting " + tickerToShort[1] + " " + stock.getQuote().getPrice());
+                }
+                catch(IOException o){
+
+                }
+                
+                placeOrderFct(tickerToShort[i]);
+            }
+        }
     }
 }
 
