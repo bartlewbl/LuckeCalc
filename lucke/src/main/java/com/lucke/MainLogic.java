@@ -19,6 +19,7 @@ import javax.xml.crypto.Data;
 import java.util.Set;
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.channels.FileLock;
 import java.text.SimpleDateFormat;
 
 import com.ib.client.*;
@@ -33,6 +34,7 @@ public class MainLogic {
     int i = 1;
     TextInterface textInterface;
     DataAnalysis dataAnalysis;
+    GivePrice givePrice;
 
     String tickerToShort[];
     public MainLogic (TextInterface _textInterface){
@@ -45,6 +47,7 @@ public class MainLogic {
         reader.start();
         textInterface = _textInterface;
         dataAnalysis = new DataAnalysis(_textInterface);
+        givePrice = new GivePrice();
     }
 
 
@@ -62,6 +65,27 @@ public class MainLogic {
         i++;
         client.reqIds(i);
         return i; 
+    }
+
+    public void checkForCommand () {
+        String currentTextInTextArea2 = textInterface.getTextArea2();
+        String[] currentTextArray = new String [10];
+
+
+        currentTextArray = currentTextInTextArea2.split(" ");
+        textInterface.setTextArea1(currentTextArray[0]);
+
+        if (currentTextArray[0].trim().compareTo("price") == 0){
+            getTickerPriceAndShow(currentTextArray[1]);
+        }
+        else {
+            textInterface.setTextArea1("No such command!");
+        }
+
+
+
+
+        textInterface.setTextArea2("");
     }
 
     public void placeOrderFct(String ticker){
@@ -89,6 +113,11 @@ public class MainLogic {
                 placeOrderFct(tickerToShort[i]);
             }
         }
+    }
+    public void getTickerPriceAndShow (String s){
+        
+       
+        textInterface.setTextArea1(givePrice.givecurrentPriceAndTicker(s).toString());
     }
 }
 

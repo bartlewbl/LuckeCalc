@@ -34,11 +34,20 @@ public class Main extends JFrame implements TextInterface   {
         textArea1 = new JTextArea ("App started ...",14,50);
         textArea1.setEditable(false);
         textArea2 = new JTextArea ("",3,50);
+        JPanel lowerPanel = new JPanel();
+        JPanel lowerNorthPanel = new JPanel();
+        JPanel lowerSouthPanel = new JPanel();
+        lowerPanel.add(lowerNorthPanel,BorderLayout.NORTH);
+        lowerPanel.add(lowerSouthPanel,BorderLayout.SOUTH);
+        
         JScrollPane sp = new JScrollPane(textArea1);
         middlePanel.add(sp,BorderLayout.NORTH);
         middlePanel.add(textArea2,BorderLayout.SOUTH);
 
-        JButton button = new JButton("Proceed");
+        JButton buttonSubmit = new JButton("Proceed");
+        JButton buttonLucke = new JButton("Lucke");
+        lowerNorthPanel.add(buttonLucke,BorderLayout.CENTER);
+        lowerSouthPanel.add(buttonSubmit,BorderLayout.SOUTH);
 
         JPanel topPanel = new JPanel();
         topPanelArea1 = new JTextArea("127.0.0.1",1,1);
@@ -54,12 +63,12 @@ public class Main extends JFrame implements TextInterface   {
         
         this.add(topPanel,java.awt.BorderLayout.NORTH);
         this.add(middlePanel,java.awt.BorderLayout.CENTER);
-        this.add(button,java.awt.BorderLayout.SOUTH);
+        this.add(lowerPanel,java.awt.BorderLayout.SOUTH);
         
         logic = new MainLogic(Main.this);
         
         
-        //An additional thread is created in this program design to empty the messaging queue
+        //An additional thread iss created in this program design to empty the messaging queue
         
 
         connectButton.addActionListener(new ActionListener(){
@@ -69,13 +78,22 @@ public class Main extends JFrame implements TextInterface   {
             }
         });
 
-        button.addActionListener(new ActionListener(){
+        buttonSubmit.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ae){
-                logic.getData();
+                //logic.getData();
                 //logic.placeOrderFct();
+                logic.checkForCommand();
+
+
                 
                 
             }
+        });
+        buttonLucke.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent ae){
+                logic.getData();
+            }
+
         });
 
 
@@ -104,9 +122,11 @@ public class Main extends JFrame implements TextInterface   {
 
 
     public void setTextArea2(String s2){
-        textArea2.setText(textArea2.getText() + "\n" + s2);
+        textArea2.setText(s2);
     }
 
-    
+    public String getTextArea2 (){
+        return textArea2.getText();
+    }
 
 }
