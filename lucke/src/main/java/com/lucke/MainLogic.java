@@ -73,10 +73,23 @@ public class MainLogic {
 
 
         currentTextArray = currentTextInTextArea2.split(" ");
-        textInterface.setTextArea1(currentTextArray[0]);
-
+        textInterface.setTextArea2("");
         if (currentTextArray[0].trim().compareTo("price") == 0){
             getTickerPriceAndShow(currentTextArray[1]);
+        }
+        else if (currentTextArray[0].trim().compareTo("start")== 0){
+            if (currentTextArray[1].trim().compareTo("gap") == 0 || currentTextArray[1].trim().compareTo("lucke") == 0 ){
+
+                if(currentTextArray[2].trim().compareTo("1") == 0){
+                    getData(true,false);
+                }
+                else {
+                    getData(false,false);
+                }
+                
+            }
+            
+            
         }
         else {
             textInterface.setTextArea1("No such command!");
@@ -85,34 +98,40 @@ public class MainLogic {
 
 
 
-        textInterface.setTextArea2("");
+        
     }
 
     public void placeOrderFct(String ticker){
         client.placeOrder(giveNextOrderId(), ordersAndContracts.giveContract(ticker), ordersAndContracts.giveOrder());
     }
-    public void getData (){
+    public void getData (boolean showPrices, boolean shouldShort){
         
         try {
-            tickerToShort = dataAnalysis.giveTickerPrice();
+            tickerToShort = dataAnalysis.giveTickerPrice(showPrices);
         }
         catch (IOException o){
             textInterface.setTextArea1("Couldnt transfer Stringarray with tickers to short!");
         }
-
-        for (int i = 0; i < 50;i++){
-            if (tickerToShort[i] != null){
-                try {
-                    Stock stock = YahooFinance.get(tickerToShort[i]);
-                    textInterface.setTextArea1("Shorting " + tickerToShort[1] + " " + stock.getQuote().getPrice());
+        if (shouldShort == true){
+            for (int i = 0; i < 10;i++){
+                if (tickerToShort[i] != null){
+                    try {
+                        Stock stock = YahooFinance.get(tickerToShort[i]);
+                        
+                        textInterface.setTextArea1("Shorting " + tickerToShort[i] + " " + stock.getQuote().getPrice());
+                        
+                        
+                    }
+                    catch(IOException o){
+    
+                    }
+                    
+                    
+                    placeOrderFct(tickerToShort[i]);
                 }
-                catch(IOException o){
-
-                }
-                
-                placeOrderFct(tickerToShort[i]);
             }
         }
+        
     }
     public void getTickerPriceAndShow (String s){
         

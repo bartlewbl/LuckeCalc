@@ -16,11 +16,13 @@ import com.ib.client.*;
 
 
 
-public class Main extends JFrame implements TextInterface   {
+public class Main extends JFrame implements TextInterface, KeyListener   {
     
     JTextArea textArea1;
     JTextArea textArea2;
     MainLogic logic;
+    
+    private GuiThreadDecoupler _guiThreadDecoupl;
 
     JTextArea topPanelArea1;
     JTextArea topPanelArea2;
@@ -33,7 +35,7 @@ public class Main extends JFrame implements TextInterface   {
         JPanel middlePanel = new JPanel();
         textArea1 = new JTextArea ("App started ...",14,50);
         textArea1.setEditable(false);
-        textArea2 = new JTextArea ("",3,50);
+        textArea2 = new JTextArea ("",1,50);
         JPanel lowerPanel = new JPanel();
         JPanel lowerNorthPanel = new JPanel();
         JPanel lowerSouthPanel = new JPanel();
@@ -44,10 +46,10 @@ public class Main extends JFrame implements TextInterface   {
         middlePanel.add(sp,BorderLayout.NORTH);
         middlePanel.add(textArea2,BorderLayout.SOUTH);
 
-        JButton buttonSubmit = new JButton("Proceed");
+        
         JButton buttonLucke = new JButton("Lucke");
         lowerNorthPanel.add(buttonLucke,BorderLayout.CENTER);
-        lowerSouthPanel.add(buttonSubmit,BorderLayout.SOUTH);
+        
 
         JPanel topPanel = new JPanel();
         topPanelArea1 = new JTextArea("127.0.0.1",1,1);
@@ -67,9 +69,16 @@ public class Main extends JFrame implements TextInterface   {
         
         logic = new MainLogic(Main.this);
         
+        //textArea2.setFont(textArea2.getFont().deriveFont(12f));  // changes the font of the textArea2
+        textArea2.getDocument().putProperty("filterNewlines", Boolean.TRUE); // Makes the textArea2 only have 1 line
+        textArea2.addKeyListener(this);
         
-        //An additional thread iss created in this program design to empty the messaging queue
+
+
         
+
+
+
 
         connectButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ae){
@@ -78,20 +87,10 @@ public class Main extends JFrame implements TextInterface   {
             }
         });
 
-        buttonSubmit.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent ae){
-                //logic.getData();
-                //logic.placeOrderFct();
-                logic.checkForCommand();
-
-
-                
-                
-            }
-        });
+        
         buttonLucke.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent ae){
-                logic.getData();
+                logic.getData(true,false);
             }
 
         });
@@ -128,5 +127,22 @@ public class Main extends JFrame implements TextInterface   {
     public String getTextArea2 (){
         return textArea2.getText();
     }
+
+    public void keyPressed(KeyEvent key){
+        if ( key.getKeyCode() == KeyEvent.VK_ENTER){
+            Runnable runAction = new Runnable() {
+                public void run(){
+                    logic.checkForCommand();
+                }
+            };
+            _guiThreadDecoupl = new GuiThreadDecoupler(runAction);
+            _guiThreadDecoupl.startActionExecution();
+            
+        }
+    }
+
+    public void keyReleased (KeyEvent key){}
+    public void keyTyped (KeyEvent key){}
+
 
 }

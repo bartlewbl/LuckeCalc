@@ -31,7 +31,7 @@ public class DataAnalysis {
         textInterface = _textInterface;
     }
 
-    public String [] giveTickerPrice () throws IOException{
+    public String [] giveTickerPrice (boolean showPrices) throws IOException{
         String tickersWithLucke[] = new String [100];
         int tickernumber = 0;
         if (file.exists() == true){
@@ -40,10 +40,13 @@ public class DataAnalysis {
             try (BufferedReader br = new BufferedReader(new FileReader(file))){
                 String tickerZeile = br.readLine();
                 tickerZeile = br.readLine().trim();   //// "List:"" as first thing in the file because when first line is taken then u get =<(Ticker) so it gives out an exeption on the first line
-                for (int i = 0; i < 80; i++){
+                for (int i = 0; i < 50; i++){
                     try {
                         strArray = getPriceData(tickerZeile);
-                        textInterface.setTextArea1(tickerZeile + "  " + strArray [1] + "  " + strArray [2]);
+                        if (showPrices == true){
+                            textInterface.setTextArea1(tickerZeile + "  " + strArray [1] + "  " + strArray [2]);
+                        }
+                        
                         if (checkIfLucke(strArray) == true){
 
                         textInterface.setTextArea1(tickerZeile);
@@ -69,6 +72,16 @@ public class DataAnalysis {
         else if (file.exists() == false){
             System.out.println("Cannot find file!!!");
         }
+        String tickerToShortString = "Tickers with gaps in price:";
+        String tickerToShortStringStep;
+        for (int j = 0; j < tickersWithLucke.length;j++){
+            if (tickersWithLucke[j] != null){
+                tickerToShortStringStep = tickerToShortString + " " + tickersWithLucke[j];
+                tickerToShortString = tickerToShortStringStep;
+            }
+            
+        }
+        textInterface.setTextArea1(tickerToShortString);
         return tickersWithLucke;
     }
 
